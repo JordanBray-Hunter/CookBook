@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import "../../global.css";
 import { AnimatedIcon } from '@/components/animated-icon';
 import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
@@ -28,20 +28,30 @@ function getDevMenuHint() {
   );
 }
 
-export default function HomeScreen() {
+export default function Index(){
+
+  return (
+    <View className="flex-1 justify-center flex-row border-2 border-red-500" >
+      <Text className="text-lime-500">My Text</Text>
+
+    </View>
+
+  )
+
+}
+
+export function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
+          <ThemedText type="title" className="text-red-400" >
             Welcome to&nbsp;Coh
           </ThemedText>
         </ThemedView>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Text className="text-red-400">content</Text>
 
         <ThemedView type="backgroundElement" style={styles.stepContainer}>
           <HintRow
