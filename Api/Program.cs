@@ -1,6 +1,11 @@
 
 
+using Api.DataAccess;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Api;
 
@@ -39,28 +44,31 @@ public class Program
         }
 
 
-        var cookiePolicy = builder.Environment.IsProduction() || builder.Environment.IsStaging()
-    ? CookieSecurePolicy.Always
-    : CookieSecurePolicy.SameAsRequest;
+        //Registers all user defined services 
+        RegisterService(builder.Services);
 
-
-        builder.Services.AddAntiforgery(options =>
+        if(builder.Environment.IsProduction() || builder.Environment.IsStaging())
         {
-            options.HeaderName = "X-CSRF-TOKEN";
-            options.Cookie.Name = "X-CSRF-TOKEN-COOKIE";
-            options.Cookie.SameSite = SameSiteMode.Strict;
-            options.Cookie.HttpOnly = true;
+            
+        } else
+        {
+            builder.Services.AddDbContextFactory<DatabaseContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=App.db"));
+        }
 
-            options.Cookie.SecurePolicy = cookiePolicy;
-        });
+
+        
+
 
 
         var app = builder.Build();
+
+        InitalizeDatabase(app.Services.CreateScope().ServiceProvider);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+
         }
 
         if (builder.Environment.IsProduction() || builder.Environment.IsStaging())
@@ -74,7 +82,7 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseCors("AllowDevlop");
+            app.UseCors("AllowDevelop");
         }
 
 
@@ -83,12 +91,6 @@ public class Program
         {
             app.UseHttpsRedirection();
         }
-        app.MapGet("/api/csrf-token", (Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery, HttpContext context) =>
-{
-    var tokens = antiforgery.GetAndStoreTokens(context);
-    return Results.Ok(tokens.RequestToken!);
-});
-
 
 
         app.UseAuthorization();
@@ -99,6 +101,14 @@ public class Program
 
     }
 
+
+
+    private static void InitalizeDatabase(IServiceProvider serviceProvider)
+    {
+        var DbContextFactory = serviceProvider.GetRequiredService<IDbContextFactory<DatabaseContext>>();   
+        using var  DbContext = DbContextFactory.CreateDbContext();
+        DbContext.Database.EnsureCreated();   
+    }
 
 
 

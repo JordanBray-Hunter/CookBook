@@ -1,7 +1,12 @@
-namespace Api;
+
+using System.ComponentModel.DataAnnotations;
+
+namespace Api.Models.Entities;
 
 public class WeatherForecast
-{
+{   
+    [Key]
+    public int id {get; set;} 
     public DateOnly Date { get; set; }
 
     public int TemperatureC { get; set; }

@@ -5,3 +5,8 @@ bin/
 .expo/
 .metro/
 node_modules/
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
